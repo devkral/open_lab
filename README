@@ -1,0 +1,11 @@
+
+
+put your token, as tokenfile under the name "token" in the same directory and
+see the magic working.
+You want your own pathes, certs? Go on and change them. It's a really simple project.
+
+
+commands:
+open
+close
+status (doesn't need token)
