@@ -15,41 +15,49 @@ with open(tokenfile,"r") as e:
 #service_url = 'https://labctl.openlab-augsburg.de' #("labctl.ffa",443),
 server_addresses=[('labctl.openlab-augsburg.de',443),("10.11.7.2",443),("10.11.8.107",443)]
 
-if len(sys.argv)==1:
-    action="state"
-elif len(sys.argv)==2:
-    action=sys.argv[1]
-else:
-    print("Too many parameters")
-    sys.exit(1)
-    
-if action in ["open","close"]:
-    evtoken="&token={}".format(_token)
-elif action in ["state",]:
-    evtoken=""
-else:
-    print("Invalid action")
-    sys.exit(1)
 
-sslcontext=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-sslcontext.verify_mode = ssl.CERT_REQUIRED
-if bool(certfile)==True:
-    sslcontext.load_verify_locations(certfile) #load_cert_chain(certfile)
-else:
-    sslcontext.load_default_certs()
+def dostuff(action):
+    if action in ["open","close"]:
+        evtoken="&token={}".format(_token)
+    elif action in ["state",]:
+        evtoken=""
+    else:
+        print("Invalid action")
+        sys.exit(1)
 
-workingcon=False
-for elem in server_addresses:
-    try:
-        con=client.HTTPSConnection(elem[0],elem[1],context=sslcontext)
-        workingcon=True
-        break
-    except Exception as e:
-        print(e)
+    sslcontext=ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    sslcontext.verify_mode = ssl.CERT_REQUIRED
+    if bool(certfile)==True:
+        sslcontext.load_verify_locations(certfile) #load_cert_chain(certfile)
+    else:
+        sslcontext.load_default_certs()
 
-if workingcon==True:
-    print("Connection successful")
-    con.request("GET", "/sphincter/?action={}{}".format(action,evtoken))
-    print(str(con.getresponse().read(),"utf8"))
-else:
-    print("Connection failed")
+    workingcon=False
+    for elem in server_addresses:
+        try:
+            con=client.HTTPSConnection(elem[0],elem[1],context=sslcontext)
+            workingcon=True
+            print("Connection: {} successful".format(elem))
+            
+            break
+        except Exception as e:
+            print(e)
+
+    if workingcon==True:
+        con.request("GET", "/sphincter/?action={}{}".format(action,evtoken))
+        return str(con.getresponse().read(),"utf8")
+    else:
+        print("Connection failed")
+        return None
+
+if __name__ == "__main__":
+    if len(sys.argv)==1:
+        _action="state"
+    elif len(sys.argv)==2:
+        _action=sys.argv[1]
+    else:
+        print("Too many parameters")
+        sys.exit(1)
+    ret = dostuff(_action)
+    if ret:
+        print(ret)

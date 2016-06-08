@@ -1,0 +1,19 @@
+
+<MainWin>:
+    cols: 1
+    Label:
+        id: statel
+        text: root.status()
+    GridLayout:
+        rows: 1
+        Button:
+            text: "open"
+            on_press:
+                root.dostuff2("open")
+                statel.text = root.status()
+        
+        Button:
+            text: "close"
+            on_press:
+                root.dostuff2("close")
+                statel.text = root.status()
