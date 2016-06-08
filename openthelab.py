@@ -10,8 +10,9 @@ certfile = None #op.dirname(sys.argv[0])+"/labctl.openlab-augsburg.de"
 tokenfile = op.dirname(sys.argv[0])+"/token"
 
 _token=""
-with open(tokenfile,"r") as e:
-    _token=e.read()
+if op.isfile(tokenfile):
+    with open(tokenfile,"r") as e:
+        _token = e.read()
 #service_url = 'https://labctl.openlab-augsburg.de' #("labctl.ffa",443),
 server_addresses=[('labctl.openlab-augsburg.de',443),("10.11.7.2",443),("10.11.8.107",443)]
 
@@ -37,7 +38,6 @@ def dostuff(action):
         try:
             con=client.HTTPSConnection(elem[0],elem[1],context=sslcontext)
             workingcon=True
-            print("Connection: {} successful".format(elem))
             
             break
         except Exception as e:
@@ -60,4 +60,5 @@ if __name__ == "__main__":
         sys.exit(1)
     ret = dostuff(_action)
     if ret:
+        print("Connection: {} successful".format(elem))
         print(ret)

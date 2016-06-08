@@ -1,19 +1,30 @@
 
 <MainWin>:
     cols: 1
+    canvas:
+        Color:
+            rgb: 0, 0.3, 0
+        Rectangle:
+            pos: self.pos
+            size: self.size
     Label:
         id: statel
+        font_size: 50
         text: root.status()
-    GridLayout:
-        rows: 1
-        Button:
-            text: "open"
-            on_press:
-                root.dostuff2("open")
-                statel.text = root.status()
-        
-        Button:
-            text: "close"
-            on_press:
-                root.dostuff2("close")
-                statel.text = root.status()
+
+<ButtonRow>:
+    rows: 1
+    spacing: 4, 4
+    Button:
+        id: openb
+        font_size: 40
+        text: "open"
+        on_press:
+            root.dostuff2("open")
+    
+    Button:
+        id: closeb
+        font_size: 40
+        text: "close"
+        on_press:
+            root.dostuff2("close")
