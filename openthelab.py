@@ -17,7 +17,8 @@ if op.isfile(tokenfile):
 server_addresses=[('labctl.openlab-augsburg.de',443),("10.11.7.2",443),("10.11.8.107",443)]
 
 
-def dostuff(action):
+def dostuff(action, server_count=0):
+    used_address = None
     if action in ["open","close"]:
         evtoken="&token={}".format(_token)
     elif action in ["state",]:
@@ -34,21 +35,27 @@ def dostuff(action):
         sslcontext.load_default_certs()
 
     workingcon=False
-    for elem in server_addresses:
+    for elem in server_addresses[server_count:]:
         try:
-            con=client.HTTPSConnection(elem[0],elem[1],context=sslcontext)
+            con = client.HTTPSConnection(elem[0],elem[1],context=sslcontext, timeout=10)
+            con.connect()
             workingcon=True
-            
+            used_address = elem
             break
         except Exception as e:
             print(e)
 
-    if workingcon==True:
+    if workingcon == True:
         con.request("GET", "/sphincter/?action={}{}".format(action,evtoken))
-        return str(con.getresponse().read(),"utf8")
+        resp = con.getresponse()
+        if resp.status == 200 or len(server_addresses) == 0:
+            return str(resp.read(),"utf8"), used_address
+        else:
+            print("Bad result. Retry...")
+            return dostuff(action, server_count=server_count+1)
     else:
         print("Connection failed")
-        return None
+        return None, used_address
 
 if __name__ == "__main__":
     if len(sys.argv)==1:
@@ -59,6 +66,6 @@ if __name__ == "__main__":
         print("Too many parameters")
         sys.exit(1)
     ret = dostuff(_action)
-    if ret:
-        print("Connection: {} successful".format(elem))
-        print(ret)
+    if ret[0]:
+        print("Connection: {} successful".format(ret[1]))
+        print(ret[0])
