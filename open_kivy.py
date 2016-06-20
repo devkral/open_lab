@@ -29,7 +29,7 @@ class MainWin(GridLayout):
     def status(self):
         ret = dostuff("state")
         if ret:
-            return ret
+            return ret[0]
         else:
             return "Error"
 
