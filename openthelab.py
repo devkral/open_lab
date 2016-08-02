@@ -47,12 +47,16 @@ def dostuff(action, server_count=0):
 
     if workingcon == True:
         con.request("GET", "/sphincter/?action={}{}".format(action,evtoken))
-        resp = con.getresponse()
-        if resp.status == 200 or len(server_addresses) == 0:
-            return str(resp.read(),"utf8"), used_address
-        else:
-            print("Bad result. Retry...")
-            return dostuff(action, server_count=server_count+1)
+        try:
+            resp = con.getresponse()
+            if resp.status == 200 or len(server_addresses) == 0:
+                return str(resp.read(),"utf8"), used_address
+            else:
+                print("Bad result. Retry...")
+                return dostuff(action, server_count=server_count+1)
+        # sphincter uses invalid http response so improvise
+        except client.BadStatusLine as exc:
+            return exc.line, used_address
     else:
         print("Connection failed")
         return None, used_address
